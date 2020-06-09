@@ -6,6 +6,10 @@ import (
 	"image"
 
 	"github.com/BurntSushi/xgbutil"
+	"github.com/BurntSushi/xgbutil/keybind"
+	//"github.com/BurntSushi/xgbutil/mousebind"
+	"fmt"
+	"github.com/BurntSushi/xgbutil/xevent"
 	"github.com/BurntSushi/xgbutil/xgraphics"
 	"github.com/BurntSushi/xgbutil/xwindow"
 )
@@ -21,10 +25,19 @@ func (ww WindowWrapper) Redraw() {
 	ww.XImage.XPaint(ww.Window.Id)
 }
 
+//RedrawFromImage draws img to XImage, then redraws the screen
 func (ww WindowWrapper) RedrawFromImage(img image.Image) {
 	xgraphics.Blend(ww.XImage, img, image.Point{})
 	ww.Redraw()
 
+}
+
+func (ww WindowWrapper) AddKeyBinding(key string, function func()) {
+	keybind.KeyPressFun(
+		func(X *xgbutil.XUtil, ev xevent.KeyPressEvent) {
+			function()
+			fmt.Println("test")
+		}).Connect(ww.X, ww.Window.Id, key, true)
 }
 
 func NewWindow(WindowTitle string, WindowContents image.Image) WindowWrapper {
@@ -36,6 +49,7 @@ func NewWindow(WindowTitle string, WindowContents image.Image) WindowWrapper {
 	ximg := xgraphics.NewConvert(X, WindowContents)
 
 	window := ximg.XShowExtra(WindowTitle, true)
+	keybind.Initialize(X)
 	return WindowWrapper{ximg, window, X}
 	//wid, _ := xproto.NewWindowId(X)
 	//screen := xproto.Setup(X).DefaultScreen(X)
