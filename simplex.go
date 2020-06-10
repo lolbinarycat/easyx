@@ -32,6 +32,16 @@ func (ww WindowWrapper) RedrawFromImage(img image.Image) {
 
 }
 
+func (ww WindowWrapper) RedrawRegion(region image.Rectangle) {
+	ww.XImage.SubImage(region).(*xgraphics.Image).XDraw()
+	ww.XImage.XPaint(ww.Window.Id)
+}
+
+func (ww WindowWrapper) RedrawRegionFromImage(img image.Image, region image.Rectangle) {
+	xgraphics.Blend(ww.XImage, img, image.Point{})
+	ww.RedrawRegion(region)
+}
+
 func (ww WindowWrapper) AddKeyBinding(key string, function func()) {
 	keybind.KeyPressFun(
 		func(X *xgbutil.XUtil, ev xevent.KeyPressEvent) {
