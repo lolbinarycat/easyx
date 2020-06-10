@@ -5,10 +5,10 @@ package simplex
 import (
 	"image"
 
+	"fmt"
 	"github.com/BurntSushi/xgbutil"
 	"github.com/BurntSushi/xgbutil/keybind"
-	//"github.com/BurntSushi/xgbutil/mousebind"
-	"fmt"
+	"github.com/BurntSushi/xgbutil/mousebind"
 	"github.com/BurntSushi/xgbutil/xevent"
 	"github.com/BurntSushi/xgbutil/xgraphics"
 	"github.com/BurntSushi/xgbutil/xwindow"
@@ -50,6 +50,14 @@ func (ww WindowWrapper) AddKeyBinding(key string, function func()) {
 		}).Connect(ww.X, ww.Window.Id, key, true)
 }
 
+func (ww WindowWrapper) OnMouseButtonPressed(buttonNo string, function func(ev xevent.ButtonPressEvent)) {
+	mousebind.ButtonPressFun(
+		func(X *xgbutil.XUtil, ev xevent.ButtonPressEvent) {
+			function(ev)
+
+		}).Connect(ww.X, ww.X.RootWin(), buttonNo, false, true)
+}
+
 func NewWindow(WindowTitle string, WindowContents image.Image) WindowWrapper {
 	X, err := xgbutil.NewConn()
 	if err != nil {
@@ -60,6 +68,7 @@ func NewWindow(WindowTitle string, WindowContents image.Image) WindowWrapper {
 
 	window := ximg.XShowExtra(WindowTitle, true)
 	keybind.Initialize(X)
+	mousebind.Initialize(X)
 	return WindowWrapper{ximg, window, X}
 	//wid, _ := xproto.NewWindowId(X)
 	//screen := xproto.Setup(X).DefaultScreen(X)
