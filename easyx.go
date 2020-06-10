@@ -1,6 +1,6 @@
-// package simplex (simple X) provides a simplified interface
+// package easyx provides a simplified interface
 // to package xgbutil
-package simplex
+package easyx
 
 import (
 	"image"
